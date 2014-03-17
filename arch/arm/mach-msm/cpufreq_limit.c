@@ -28,7 +28,11 @@
 
 //#define DEBUG_CPU_LIMITER
 
+#ifdef CONFIG_MACH_X909
 uint32_t limited_max_freq = 1512000;
+#else
+uint32_t limited_max_freq = 1728000;
+#endif
 
 static int update_cpu_max_freq(int cpu, uint32_t max_freq)
 {
