@@ -21,7 +21,11 @@
 #include <linux/cpumask.h>
 
 #ifdef CONFIG_TURBO_BOOST
+#ifdef CONFIG_MACH_X909
 #define STOCK_CPU_MAX_SPEED     1512000
+#else // assuming to be N1
+#define STOCK_CPU_MAX_SPEED     1728000
+#endif
 #endif
 
 int msm_turbo(int cpufreq)
