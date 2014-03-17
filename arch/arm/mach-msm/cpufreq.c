@@ -111,6 +111,10 @@ out:
 	mutex_unlock(&l2bw_lock);
 }
 
+#ifdef CONFIG_TURBO_BOOST
+extern int msm_turbo(int);
+#endif
+
 static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 			unsigned int index)
 {
@@ -121,6 +125,10 @@ static int set_cpu_freq(struct cpufreq_policy *policy, unsigned int new_freq,
 	struct cpu_freq *limit = &per_cpu(cpu_freq_info, policy->cpu);
 	struct sched_param param = { .sched_priority = MAX_RT_PRIO-1 };
 	struct cpufreq_frequency_table *table;
+
+#ifdef CONFIG_TURBO_BOOST
+	new_freq = msm_turbo(new_freq);
+#endif
 
 	if (limit->limits_init) {
 		if (new_freq > limit->allowed_max) {
