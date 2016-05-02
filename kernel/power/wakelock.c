@@ -61,9 +61,13 @@ static struct wake_lock suspend_backoff_lock;
 static unsigned suspend_short_count;
 
 #ifdef CONFIG_WAKELOCK_STAT
+static int wakelock_stats_open(struct inode *inode, struct file *file);
+static void wake_lock_stats_init(void);
 static struct wake_lock deleted_wake_locks;
 static ktime_t last_sleep_time_update;
 static int wait_for_wakeup;
+static int wakelock_stats_open(struct inode *inode, struct file *file);
+static void wake_lock_stats_init(void);
 
 int get_expired_time(struct wake_lock *lock, ktime_t *expire_time)
 {
@@ -660,6 +664,26 @@ int wake_lock_active(struct wake_lock *lock)
 }
 EXPORT_SYMBOL(wake_lock_active);
 
+#ifdef CONFIG_WAKELOCK_STAT
+static int wakelock_stats_open(struct inode *inode, struct file *file)
+{
+	return single_open(file, wakelock_stats_show, NULL);
+}
+
+static void wake_lock_stats_init()
+{
+	static const struct file_operations wakelock_stats_fops = {
+	.owner = THIS_MODULE,
+	.open = wakelock_stats_open,
+	.read = seq_read,
+	.llseek = seq_lseek,
+	.release = single_release,
+	};
+	
+	proc_create("wakelocks", S_IRUGO, NULL, &wakelock_stats_fops);
+}
+#endif
+
 static int __init wakelocks_init(void)
 {
 	int ret;
@@ -704,21 +728,7 @@ static int __init wakelocks_init(void)
 	}
 
 #ifdef CONFIG_WAKELOCK_STAT
-	
-	static int wakelock_stats_open(struct inode *inode, struct file *file)
-	{
-		return single_open(file, wakelock_stats_show, NULL);
-	}
-	
-	static const struct file_operations wakelock_stats_fops = {
-	.owner = THIS_MODULE,
-	.open = wakelock_stats_open,
-	.read = seq_read,
-	.llseek = seq_lseek,
-	.release = single_release,
-};
-	
-	proc_create("wakelocks", S_IRUGO, NULL, &wakelock_stats_fops);
+	wake_lock_stats_init();
 #endif
 
 	return 0;
