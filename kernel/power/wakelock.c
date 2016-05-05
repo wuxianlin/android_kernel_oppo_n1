@@ -66,8 +66,6 @@ static void wake_lock_stats_init(void);
 static struct wake_lock deleted_wake_locks;
 static ktime_t last_sleep_time_update;
 static int wait_for_wakeup;
-static int wakelock_stats_open(struct inode *inode, struct file *file);
-static void wake_lock_stats_init(void);
 
 int get_expired_time(struct wake_lock *lock, ktime_t *expire_time)
 {
