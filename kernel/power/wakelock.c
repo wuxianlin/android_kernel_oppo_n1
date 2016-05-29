@@ -32,7 +32,7 @@ enum {
 	DEBUG_WAKE_LOCK = 1U << 4,
 };
 static int debug_mask = DEBUG_EXIT_SUSPEND |
-				DEBUG_WAKEUP | DEBUG_SUSPEND | DEBUG_EXPIRE;  
+				DEBUG_WAKEUP | DEBUG_SUSPEND | DEBUG_EXPIRE; 
 module_param_named(debug_mask, debug_mask, int, S_IRUGO | S_IWUSR | S_IWGRP);
 
 #define WAKE_LOCK_TYPE_MASK              (0x0f)
@@ -61,6 +61,8 @@ static struct wake_lock suspend_backoff_lock;
 static unsigned suspend_short_count;
 
 #ifdef CONFIG_WAKELOCK_STAT
+static int wakelock_stats_open(struct inode *inode, struct file *file);
+static void wake_lock_stats_init(void);
 static struct wake_lock deleted_wake_locks;
 static ktime_t last_sleep_time_update;
 static int wait_for_wakeup;
@@ -235,6 +237,7 @@ static void print_active_locks(int type)
 	}
 }
 
+#ifdef CONFIG_WAKELOCK_DEBUG
 static void debug_wake_locks(unsigned long notuse)
 {
 	/* Print active wakelocks */
@@ -269,6 +272,7 @@ void set_debug_lock_timer(int enable, unsigned int timeout)
 		mod_timer(&debug_locks_timer, jiffies + timeout);
 }
 EXPORT_SYMBOL(set_debug_lock_timer);
+#endif
 
 static long has_wake_lock_locked(int type)
 {
@@ -658,18 +662,25 @@ int wake_lock_active(struct wake_lock *lock)
 }
 EXPORT_SYMBOL(wake_lock_active);
 
+#ifdef CONFIG_WAKELOCK_STAT
 static int wakelock_stats_open(struct inode *inode, struct file *file)
 {
 	return single_open(file, wakelock_stats_show, NULL);
 }
 
-static const struct file_operations wakelock_stats_fops = {
+static void wake_lock_stats_init()
+{
+	static const struct file_operations wakelock_stats_fops = {
 	.owner = THIS_MODULE,
 	.open = wakelock_stats_open,
 	.read = seq_read,
 	.llseek = seq_lseek,
 	.release = single_release,
-};
+	};
+	
+	proc_create("wakelocks", S_IRUGO, NULL, &wakelock_stats_fops);
+}
+#endif
 
 static int __init wakelocks_init(void)
 {
@@ -715,7 +726,7 @@ static int __init wakelocks_init(void)
 	}
 
 #ifdef CONFIG_WAKELOCK_STAT
-	proc_create("wakelocks", S_IRUGO, NULL, &wakelock_stats_fops);
+	wake_lock_stats_init();
 #endif
 
 	return 0;

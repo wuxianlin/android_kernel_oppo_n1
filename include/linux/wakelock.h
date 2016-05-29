@@ -58,7 +58,12 @@ void wake_lock_destroy(struct wake_lock *lock);
 void wake_lock(struct wake_lock *lock);
 void wake_lock_timeout(struct wake_lock *lock, long timeout);
 void wake_unlock(struct wake_lock *lock);
+
+#ifdef CONFIG_WAKELOCK_DEBUG
 void set_debug_lock_timer(int enable, unsigned int timeout);
+#else
+static inline void set_debug_lock_timer(int enable, unsigned int timeout) {}
+#endif
 
 /* wake_lock_active returns a non-zero value if the wake_lock is currently
  * locked. If the wake_lock has a timeout, it does not check the timeout
