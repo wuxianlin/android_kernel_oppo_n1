@@ -1229,7 +1229,7 @@ static int get_battery_uvolts(struct pm8921_bms_chip *chip, int *uvolts)
 
 static int adc_based_ocv(struct pm8921_bms_chip *chip, int *ocv,int usb_chg)
 {
-	int vbatt, rbatt, ibatt_ua, rc;
+	int vbatt = 0, rbatt, ibatt_ua, rc;
 
 	rc = get_battery_uvolts(chip, &vbatt);
 	if (rc) {
@@ -2745,7 +2745,7 @@ static int calculate_state_of_charge(struct pm8921_bms_chip *chip,
 
 static int recalculate_soc(struct pm8921_bms_chip *chip)
 {
-	int batt_temp;
+	int batt_temp = 0;
 	struct pm8921_soc_params raw;
 	int soc;
 
@@ -2981,7 +2981,7 @@ EXPORT_SYMBOL_GPL(pm8921_bms_get_current_max);
 
 int pm8921_bms_get_fcc(void)
 {
-	int batt_temp;
+	int batt_temp = 0;
 
 	if (!the_chip) {
 		pr_err("called before initialization\n");
@@ -3001,7 +3001,7 @@ EXPORT_SYMBOL_GPL(pm8921_bms_get_fcc);
 void pm8921_bms_charging_began(void)
 {
 	struct pm8921_soc_params raw;
-	int batt_temp;
+	int batt_temp = 0;
 
 	get_batt_temp(the_chip, &batt_temp);
 
